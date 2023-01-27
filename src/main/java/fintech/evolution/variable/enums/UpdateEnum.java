@@ -1,0 +1,9 @@
+package fintech.evolution.variable.enums;
+
+public enum UpdateEnum {
+    MESSAGE_TEXT, DEFAULT_UPDATE,
+    CALL_BACK_QUERY, AUDIO_MESSAGE,
+    VOICE_MESSAGE, PHOTO_MESSAGE,
+    DOCUMENT_MESSAGE, CONTACT_MESSAGE,
+    LOCATION_MESSAGE, ANIMATION_MESSAGE
+}
