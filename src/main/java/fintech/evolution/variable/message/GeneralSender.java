@@ -63,4 +63,8 @@ public interface GeneralSender {
         return null;
     }
 
+    default boolean getDisableWebPagePreview() {
+        return false;
+    }
+
 }

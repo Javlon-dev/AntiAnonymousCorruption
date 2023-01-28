@@ -119,9 +119,4 @@ abstract public class AbstractService {
         return pattern.matcher(email).matches();
     }
 
-    protected boolean isFormalContact(String contact) {
-        String phone = "\\+998\\d{9}";
-        Pattern pattern = Pattern.compile(phone);
-        return pattern.matcher(contact).matches();
-    }
 }
