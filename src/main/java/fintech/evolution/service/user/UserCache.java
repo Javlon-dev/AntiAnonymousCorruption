@@ -16,9 +16,9 @@ public interface UserCache {
 
     Integer getMessageId(Long chatId);
 
-    void setUserReview(Long chatId, UserCooperation userCooperation);
+    void setUserCooperation(Long chatId, UserCooperation userCooperation);
 
-    UserCooperation getUserReview(Long chatId);
+    UserCooperation getUserCooperation(Long chatId);
 
     void setUserDebate(Long chatId, UserDebate userDebate);
 

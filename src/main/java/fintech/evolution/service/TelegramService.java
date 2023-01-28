@@ -68,11 +68,7 @@ public class TelegramService {
         Integer messageId = message.getMessageId();
         String step = userService.getStep(chatId);
 
-        switch (step) {
-            case STEP_COOPERATION_SEND_PHOTO_OR_VIDEO -> {
-                messageService.stepCooperation(1l);
-            }
-        }
+
         return Collections.emptyList();
     }
 

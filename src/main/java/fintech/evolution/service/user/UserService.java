@@ -53,12 +53,12 @@ public class UserService implements UserCache {
     }
 
     @Override
-    public void setUserReview(Long chatId, UserCooperation userCooperation) {
+    public void setUserCooperation(Long chatId, UserCooperation userCooperation) {
         mapUserCooperation.put(chatId, userCooperation);
     }
 
     @Override
-    public UserCooperation getUserReview(Long chatId) {
+    public UserCooperation getUserCooperation(Long chatId) {
         mapUserCooperation.putIfAbsent(chatId, new UserCooperation());
         return mapUserCooperation.get(chatId);
     }
