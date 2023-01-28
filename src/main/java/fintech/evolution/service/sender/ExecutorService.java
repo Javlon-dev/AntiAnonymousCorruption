@@ -86,8 +86,8 @@ public class ExecutorService {
 
         return ForwardMessage
                 .builder()
-                .chatId(channelChatId)
-                .fromChatId(sender.getChatId())
+                .chatId(sender.getChatId())
+                .fromChatId(sender.getFromChatId())
                 .messageId(sender.getMessageId())
                 .build();
     }

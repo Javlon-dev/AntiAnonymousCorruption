@@ -8,6 +8,11 @@ import fintech.evolution.variable.enums.MessageType;
 public interface GeneralSender {
     Long getChatId();
 
+    default Long getFromChatId() {
+        return null;
+    }
+
+
     default String getText() {
         return null;
     }
