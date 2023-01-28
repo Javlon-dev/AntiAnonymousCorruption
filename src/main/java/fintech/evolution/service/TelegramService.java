@@ -5,12 +5,18 @@ import fintech.evolution.service.sender.CallBackQueryService;
 import fintech.evolution.service.sender.MessageService;
 import fintech.evolution.service.user.UserService;
 import fintech.evolution.variable.enums.UpdateEnum;
+import fintech.evolution.variable.message.ForwarderMessage;
 import fintech.evolution.variable.message.GeneralSender;
+import fintech.evolution.variable.message.SenderMediaGroup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaVideo;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,10 +68,9 @@ public class TelegramService {
 
     public List<GeneralSender> messagePhotoOrVideo(Message message) {
         Long chatId = message.getChatId();
-        Integer messageId = message.getMessageId();
         String step = userService.getStep(chatId);
 
-        if (step.equals(STEP_COOPERATION)) return messageService.stepCooperation(chatId, messageId);
+        if (step.equals(STEP_COOPERATION)) return messageService.stepCooperation(chatId, message.getMessageId());
         return Collections.emptyList();
     }
 

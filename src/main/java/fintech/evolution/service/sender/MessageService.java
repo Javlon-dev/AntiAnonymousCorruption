@@ -100,6 +100,7 @@ public class MessageService extends AbstractService {
                 .builder()
                 .chatId(chatId)
                 .text(text)
+                .reply(getKeyboardWithCancel(chatId, getTextByLang(lang, MENU_CONFIRM_UZ, MENU_CONFIRM_RU)))
                 .build());
     }
 
@@ -123,6 +124,9 @@ public class MessageService extends AbstractService {
             case MENU_BACK_UZ, MENU_BACK_RU -> {
                 return backMenu(chatId);
             }
+            case MENU_CONFIRM_UZ, MENU_CONFIRM_RU -> {
+                return confirmMenu(chatId);
+            }
             case MENU_CHANGE_LANG_UZ, MENU_CHANGE_LANG_RU -> {
                 service.setStep(chatId, STEP_CHANGE_LANG);
                 return changeLangMenu(chatId, null);
@@ -145,6 +149,45 @@ public class MessageService extends AbstractService {
             }
             case MENU_CANCEL_UZ, MENU_CANCEL_RU -> {
                 return menuCancel(chatId);
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    public List<GeneralSender> confirmMenu(Long chatId) {
+        String lang = service.getLang(chatId);
+        String step = service.getStep(chatId);
+
+        switch (step) {
+            case STEP_COOPERATION -> {
+                UserCooperation userCooperation = service.getUserCooperation(chatId);
+                if (userCooperation.getMessagesId().isEmpty()) {
+                    return Collections.singletonList(SenderMessage
+                            .builder()
+                            .chatId(chatId)
+                            .text(getTextByLang(lang, TEXT_COOPERATION_CONFIRM_ERR_UZ, TEXT_COOPERATION_CONFIRM_ERR_RU))
+                            .build());
+                }
+
+                List<GeneralSender> list = new ArrayList<>(
+                        startMenu(chatId, getTextByLang(lang, TEXT_CONGRATS_UZ, TEXT_CONGRATS_RU)));
+
+                list.add(ForwarderMessage
+                        .builder()
+                        .chatId(channelChatId)
+                        .fromChatId(chatId)
+                        .messagesId(userCooperation.getMessagesId())
+                        .build());
+
+                list.add(SenderMessage
+                        .builder()
+                        .chatId(channelChatId)
+                        .text(getCooperationUser(userCooperation))
+                        .disableWebPagePreview(true)
+                        .build());
+
+                return list;
             }
         }
 
@@ -324,35 +367,18 @@ public class MessageService extends AbstractService {
                 .builder()
                 .chatId(chatId)
                 .text(text)
-                .reply(getKeyboardWithCancel(chatId, null))
+                .reply(getKeyboardWithCancel(chatId, getTextByLang(lang, MENU_CONFIRM_UZ, MENU_CONFIRM_RU)))
                 .build());
     }
 
-    public List<GeneralSender> stepCooperation(Long chatId, Integer messageId) {
+    public synchronized List<GeneralSender> stepCooperation(Long chatId, Integer messageId) {
         String lang = service.getLang(chatId);
 
         UserCooperation userCooperation = service.getUserCooperation(chatId);
-        userCooperation.setAttachId(messageId);
+        userCooperation.setMessagesId(messageId);
         service.setUserCooperation(chatId, userCooperation);
 
-        List<GeneralSender> list = new ArrayList<>(
-                startMenu(chatId, getTextByLang(lang, TEXT_CONGRATS_UZ, TEXT_CONGRATS_RU)));
-
-        list.add(ForwarderMessage
-                .builder()
-                .chatId(channelChatId)
-                .fromChatId(chatId)
-                .messageId(messageId)
-                .build());
-
-        list.add(SenderMessage
-                .builder()
-                .chatId(channelChatId)
-                .text(getCooperationUser(userCooperation))
-                .disableWebPagePreview(true)
-                .build());
-
-        return list;
+        return Collections.emptyList();
     }
 
     private String getCooperationUser(UserCooperation userCooperation) {

@@ -26,4 +26,6 @@ public interface UserText {
     String TEXT_SELECTED_LANG_RU = "*Выбран русский язык!*";
     String TEXT_CONGRATS_UZ = "*Рахмат, якин орада сиз билан боғланамиз!*";
     String TEXT_CONGRATS_RU = "*Спасибо, скором временем свяжемся с вами!*";
+    String TEXT_COOPERATION_CONFIRM_ERR_UZ = "*Сиз бирор хам далил юбомадиз!*";
+    String TEXT_COOPERATION_CONFIRM_ERR_RU = "*Вы не прислали никаких доказательств!*";
 }

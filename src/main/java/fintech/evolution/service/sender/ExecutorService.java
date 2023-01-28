@@ -10,6 +10,8 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import fintech.evolution.variable.message.GeneralSender;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class ExecutorService {
@@ -90,6 +92,24 @@ public class ExecutorService {
                 .chatId(sender.getChatId())
                 .fromChatId(sender.getFromChatId())
                 .messageId(sender.getMessageId())
+                .build();
+    }
+
+    public ForwardMessage forward(GeneralSender sender, Integer messageId) {
+
+        return ForwardMessage
+                .builder()
+                .chatId(sender.getChatId())
+                .fromChatId(sender.getFromChatId())
+                .messageId(messageId)
+                .build();
+    }
+
+    public SendMediaGroup sendMediaGroup(GeneralSender sender) {
+        return SendMediaGroup
+                .builder()
+                .chatId(sender.getChatId())
+                .medias(sender.getMedias())
                 .build();
     }
 

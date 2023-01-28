@@ -4,25 +4,22 @@ import fintech.evolution.variable.enums.MessageType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 
 import java.util.List;
-
-/**
- * Author : Khonimov Ulugbek
- * Date : 10.12.2022
- * Time : 8:25 AM
- */
 
 @Getter
 @Setter
 @Builder
-public class ForwarderMessage implements GeneralSender {
+public class SenderMediaGroup implements GeneralSender {
+
     private Long chatId;
-    private Long fromChatId;
-    private List<Integer> messagesId;
+
+    private List<InputMedia> medias;
 
     @Override
     public MessageType getType() {
-        return MessageType.FORWARD_MESSAGE;
+        return MessageType.SEND_MEDIA_GROUP;
     }
+
 }

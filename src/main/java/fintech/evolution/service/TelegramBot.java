@@ -106,8 +106,18 @@ public class TelegramBot extends TelegramLongPollingBot {
                     execute(executorService.sendDocument(sender));
                 }
                 case FORWARD_MESSAGE -> {
-                    execute(sendAction(sender.getChatId(), UPLOADDOCUMENT));
-                    execute(executorService.forward(sender));
+                    if (sender.getMessagesId() != null && !sender.getMessagesId().isEmpty()) {
+                        for (Integer messageId : sender.getMessagesId()) {
+                            execute(sendAction(sender.getChatId(), UPLOADDOCUMENT));
+                            execute(executorService.forward(sender, messageId));
+                        }
+                    } else {
+                        execute(sendAction(sender.getChatId(), UPLOADDOCUMENT));
+                        execute(executorService.forward(sender));
+                    }
+                }
+                case SEND_MEDIA_GROUP -> {
+                    execute(executorService.sendMediaGroup(sender));
                 }
             }
         } catch (TelegramApiException e) {

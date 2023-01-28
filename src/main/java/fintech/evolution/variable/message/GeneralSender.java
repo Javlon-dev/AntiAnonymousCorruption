@@ -2,8 +2,11 @@ package fintech.evolution.variable.message;
 
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import fintech.evolution.variable.enums.MessageType;
+
+import java.util.List;
 
 public interface GeneralSender {
     Long getChatId();
@@ -64,7 +67,18 @@ public interface GeneralSender {
     }
 
     default boolean getDisableWebPagePreview() {
+
         return false;
+    }
+    default List<InputMedia> getMedias() {
+        return null;
+    }
+    default String getMediaGroupId() {
+        return null;
+    }
+
+    default List<Integer> getMessagesId(){
+        return null;
     }
 
 }
