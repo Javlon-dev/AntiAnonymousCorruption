@@ -1,7 +1,9 @@
 package fintech.evolution.service.sender;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -11,6 +13,9 @@ import fintech.evolution.variable.message.GeneralSender;
 @Slf4j
 @Service
 public class ExecutorService {
+
+    @Value("${channel.chat.id}")
+    private Long channelChatId;
 
     public SendMessage send(GeneralSender sender) {
         var send = SendMessage
@@ -75,6 +80,16 @@ public class ExecutorService {
         if (isExistKeyboard(sender)) send.setReplyMarkup(sender.getReply());
         if (isExistReplyMessage(sender)) send.setReplyToMessageId(sender.getReplyMessageId());
         return send;
+    }
+
+    public ForwardMessage forward(GeneralSender sender) {
+
+        return ForwardMessage
+                .builder()
+                .chatId(channelChatId)
+                .fromChatId(sender.getChatId())
+                .messageId(sender.getMessageId())
+                .build();
     }
 
     private boolean isExistReplyMessage(GeneralSender sender) {

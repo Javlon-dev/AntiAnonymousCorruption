@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,13 +27,13 @@ public class TelegramService {
     private final UserService userService;
     private final DocumentService documentService;
     private final AdminService adminService;
-    @Value("${admin.chatId:0}")
+    @Value("${admin.chat.id:0}")
     private Long adminChatId;
 
 
     public List<GeneralSender> onUpdate(Update update) {
         UpdateEnum updateEnum = getUpdate(update);
-
+        log.info("<< onUpdate " + update);
 
         switch (updateEnum) {
             case MESSAGE_TEXT -> {
@@ -47,20 +46,18 @@ public class TelegramService {
                     return adminService.callBack(update.getCallbackQuery());
                 return callBack(update.getCallbackQuery());
             }
-
             case CONTACT_MESSAGE -> {
-
                 return messageContact(update.getMessage());
             }
             case PHOTO_MESSAGE, VIDEO_MESSAGE -> {
                 return messagePhotoOrVideo(update.getMessage());
             }
             case DEFAULT_UPDATE -> {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     public List<GeneralSender> messagePhotoOrVideo(Message message) {
@@ -68,7 +65,7 @@ public class TelegramService {
         Integer messageId = message.getMessageId();
         String step = userService.getStep(chatId);
 
-
+        if (step.equals(STEP_COOPERATION)) return messageService.stepCooperation(chatId, messageId);
         return Collections.emptyList();
     }
 
@@ -94,7 +91,8 @@ public class TelegramService {
         Contact contact = message.getContact();
         String step = userService.getStep(chatId);
 
-        return null;
+        if (step.equals(STEP_COOPERATION_PHONE)) return messageService.stepContact(chatId, contact);
+        return Collections.emptyList();
     }
 
 

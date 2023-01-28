@@ -2,13 +2,15 @@ package fintech.evolution.service.sender;
 
 import fintech.evolution.service.user.AbstractService;
 import fintech.evolution.variable.constants.user.UserMenu;
-import fintech.evolution.variable.constants.user.UserStep;
 import fintech.evolution.variable.entity.UserCooperation;
+import fintech.evolution.variable.message.ForwarderMessage;
 import fintech.evolution.variable.message.GeneralSender;
 import fintech.evolution.variable.message.SenderMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -28,8 +30,11 @@ import static fintech.evolution.variable.constants.user.UserText.*;
 @Slf4j
 public class MessageService extends AbstractService {
 
-    @Value("${admin.chatId:0}")
+    @Value("${admin.chat.id:0}")
     private Long adminChatId;
+
+    @Value("${channel.chat.id:0}")
+    private Long channelChatId;
 
     public List<GeneralSender> start(Long chatId, Message message) {
         String step = service.getStep(chatId);
@@ -37,7 +42,7 @@ public class MessageService extends AbstractService {
         boolean b = step.equals(STEP_AUTO);
 
         if (message.getText().equals(TEXT_START) || b) {
-            return startMenu(chatId, getTextByLang(lang, TEXT_CHOOSE_RU, TEXT_CHOOSE_UZ));
+            return startMenu(chatId, getTextByLang(lang, TEXT_CHOOSE_UZ, TEXT_CHOOSE_RU));
         }
 
         if (isFormative(UserMenu.class, message.getText())) {
@@ -53,20 +58,49 @@ public class MessageService extends AbstractService {
 
         switch (step) {
             case STEP_COOPERATION_FULL_NAME -> {
-                return stepCooperation(chatId, message.getText());
+                return stepCooperationFullName(chatId, message);
             }
             case STEP_COOPERATION_PHONE -> {
-
+                return stepCooperationPhone(chatId, message.getText());
             }
             case STEP_SETTINGS -> {
                 return stepSettings(chatId, getTextByLang(lang, TEXT_CHOOSE_UZ, TEXT_CHOOSE_RU));
             }
             case STEP_STATISTICS -> {
-
+                return stepStatistics(chatId, message.getText());
             }
         }
 
         return Collections.emptyList();
+    }
+
+    public List<GeneralSender> stepStatistics(Long chatId, String text) {
+        return Collections.emptyList();
+    }
+
+    public List<GeneralSender> stepCooperationPhone(Long chatId, String msg) {
+        String lang = service.getLang(chatId);
+        if (!isFormalContact(msg)) {
+            return Collections.singletonList(SenderMessage
+                    .builder()
+                    .chatId(chatId)
+                    .text(getTextByLang(lang, TEXT_COOPERATION_PHONE_UZ, TEXT_COOPERATION_PHONE_RU))
+                    .reply(getKeyboardWithRequestContact(chatId, getTextByLang(lang, TEXT_SHARE_CONTACT_UZ, TEXT_SHARE_CONTACT_RU)))
+                    .build());
+        }
+
+        UserCooperation userCooperation = service.getUserCooperation(chatId);
+        userCooperation.setPhoneNumber(msg);
+        service.setUserCooperation(chatId, userCooperation);
+        service.setStep(chatId, STEP_COOPERATION);
+
+        String text = getTextByLang(lang, TEXT_COOPERATION_SEND_UZ, TEXT_COOPERATION_SEND_RU);
+
+        return Collections.singletonList(SenderMessage
+                .builder()
+                .chatId(chatId)
+                .text(text)
+                .build());
     }
 
     private List<GeneralSender> formativeMenu(Long chatId, Message message) {
@@ -76,7 +110,7 @@ public class MessageService extends AbstractService {
         switch (message.getText()) {
             case MENU_COOPERATION_UZ, MENU_COOPERATION_RU -> {
                 if (step.equals(STEP_START)) {
-                    service.setStep(chatId, STEP_COOPERATION_PHONE);
+                    service.setStep(chatId, STEP_COOPERATION_FULL_NAME);
                     return getCooperation(chatId);
                 }
             }
@@ -105,13 +139,28 @@ public class MessageService extends AbstractService {
                         service.setLang(chatId, LANG_RU);
                     }
                     lang = service.getLang(chatId);
-                    String msg = lang.equals(LANG_UZ) ? "Ўзбек тили танланди" : lang.equals(LANG_RU) ? "Выбран русский язык" : "";
+                    String msg = lang.equals(LANG_UZ) ? TEXT_SELECTED_LANG_UZ : lang.equals(LANG_RU) ? TEXT_SELECTED_LANG_RU : "";
                     return changeLangMenu(chatId, msg);
                 }
+            }
+            case MENU_CANCEL_UZ, MENU_CANCEL_RU -> {
+                return menuCancel(chatId);
             }
         }
 
         return Collections.emptyList();
+    }
+
+    public List<GeneralSender> menuCancel(Long chatId) {
+        String lang = service.getLang(chatId);
+        String step = service.getStep(chatId);
+        if (step.equals(STEP_START)) {
+            return Collections.emptyList();
+        }
+        service.setUserCooperation(chatId, null);
+        service.setStep(chatId, STEP_START);
+
+        return startMenu(chatId, getTextByLang(lang, TEXT_CHOOSE_UZ, TEXT_CHOOSE_RU));
     }
 
     private List<GeneralSender> getStatistics(Long chatId) {
@@ -136,7 +185,7 @@ public class MessageService extends AbstractService {
                 service.setStep(chatId, STEP_SETTINGS);
                 return stepSettings(chatId, getTextByLang(lang, TEXT_CHOOSE_UZ, TEXT_CHOOSE_RU));
             }
-            case STEP_START, STEP_COOPERATION, STEP_STATISTICS, STEP_DOCUMENTS, STEP_SETTINGS -> {
+            case STEP_START, STEP_COOPERATION_FULL_NAME, STEP_STATISTICS, STEP_DOCUMENTS, STEP_SETTINGS -> {
                 return startMenu(chatId, getTextByLang(lang, TEXT_CHOOSE_UZ, TEXT_CHOOSE_RU));
             }
         }
@@ -192,7 +241,6 @@ public class MessageService extends AbstractService {
 
     public List<GeneralSender> getCooperation(Long chatId) {
         String text = getTextByLang(service.getLang(chatId), TEXT_FULL_NAME_UZ, TEXT_FULL_NAME_RU);
-        service.setStep(chatId, STEP_COOPERATION_PHONE);
         SenderMessage senderMessage = SenderMessage
                 .builder()
                 .reply(getKeyboardWithCancel(chatId, null))
@@ -203,22 +251,25 @@ public class MessageService extends AbstractService {
 
     }
 
-    public List<GeneralSender> stepCooperation(Long chatId, String msg) {
+    public List<GeneralSender> stepCooperationFullName(Long chatId, Message message) {
+        String msg = message.getText();
         if (msg.length() <= 2) return getCooperation(chatId);
 
         String lang = service.getLang(chatId);
         UserCooperation userCooperation = service.getUserCooperation(chatId);
         userCooperation.setFullName(msg);
+        userCooperation.setUsername(message.getFrom().getUserName());
         service.setUserCooperation(chatId, userCooperation);
         service.setStep(chatId, STEP_COOPERATION_PHONE);
 
-        String text = getTextByLang(lang, TEXT_PHONE_UZ, TEXT_PHONE_RU);
+        String text = getTextByLang(lang, TEXT_COOPERATION_PHONE_UZ, TEXT_COOPERATION_PHONE_RU);
 
 
-        return List.of(SenderMessage
+        return Collections.singletonList(SenderMessage
                 .builder()
                 .chatId(chatId)
                 .text(text)
+                .reply(getKeyboardWithRequestContact(chatId, getTextByLang(lang, TEXT_SHARE_CONTACT_UZ, TEXT_SHARE_CONTACT_RU)))
                 .build());
     }
 
@@ -259,4 +310,57 @@ public class MessageService extends AbstractService {
         }
     }
 
+    public List<GeneralSender> stepContact(Long chatId, Contact contact) {
+        String lang = service.getLang(chatId);
+
+        UserCooperation userCooperation = service.getUserCooperation(chatId);
+        userCooperation.setPhoneNumber(contact.getPhoneNumber());
+        service.setUserCooperation(chatId, userCooperation);
+        service.setStep(chatId, STEP_COOPERATION);
+
+        String text = getTextByLang(lang, TEXT_COOPERATION_SEND_UZ, TEXT_COOPERATION_SEND_RU);
+
+        return Collections.singletonList(SenderMessage
+                .builder()
+                .chatId(chatId)
+                .text(text)
+                .reply(getKeyboardWithCancel(chatId, null))
+                .build());
+    }
+
+    public List<GeneralSender> stepCooperation(Long chatId, Integer messageId) {
+        String lang = service.getLang(chatId);
+
+        UserCooperation userCooperation = service.getUserCooperation(chatId);
+        userCooperation.setAttachId(messageId);
+        service.setUserCooperation(chatId, userCooperation);
+
+        List<GeneralSender> list = new ArrayList<>(
+                startMenu(chatId, getTextByLang(lang, TEXT_CONGRATS_UZ, TEXT_CONGRATS_RU)));
+
+        list.add(ForwarderMessage
+                .builder()
+                .chatId(channelChatId)
+                .fromChatId(chatId)
+                .messageId(messageId)
+                .build());
+
+        list.add(SenderMessage
+                .builder()
+                .chatId(channelChatId)
+                .text(getCooperationUser(userCooperation))
+                .build());
+        log.info("<< stepCooperation " + userCooperation);
+        return list;
+    }
+
+    private String getCooperationUser(UserCooperation userCooperation) {
+        return """
+                F.I.O: %s
+                Phone: %s
+                Username: %s
+                """.formatted(userCooperation.getFullName(),
+                userCooperation.getPhoneNumber(),
+                userCooperation.getUsername() != null ? "https://t.me/" + userCooperation.getUsername() : "https://t.me/" + userCooperation.getPhoneNumber());
+    }
 }

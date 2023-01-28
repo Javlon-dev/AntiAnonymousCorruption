@@ -4,13 +4,11 @@ import fintech.evolution.config.BotConfig;
 import fintech.evolution.service.sender.ExecutorService;
 import fintech.evolution.service.user.UserService;
 import fintech.evolution.variable.message.GeneralSender;
-import fintech.evolution.variable.message.SenderMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -21,7 +19,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static fintech.evolution.variable.constants.user.UserLang.LANG_UZ;
+import static fintech.evolution.variable.constants.user.UserText.TEXT_COMMAND_1;
 import static fintech.evolution.variable.constants.user.UserText.TEXT_START;
 import static org.telegram.telegrambots.meta.api.methods.ActionType.*;
 
@@ -34,9 +32,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final UserService userService;
 
 
-    @Value("${group.chatId:0}")
+    @Value("${group.chat.id:0}")
     private Long groupChatId;
-    @Value("${admin.chatId:0}")
+    @Value("${admin.chat.id:0}")
     private Long adminChatId;
 
     @Value("${secret.key:noKey}")
@@ -49,7 +47,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.userService = userService;
 
         List<BotCommand> list = new ArrayList<>();
-        list.add(new BotCommand(TEXT_START, "Кайта ишга тушуриш | Перезапустить бота"));
+        list.add(new BotCommand(TEXT_START, TEXT_COMMAND_1));
         try {
             this.execute(new SetMyCommands(list, new BotCommandScopeDefault(), null));
 
@@ -106,6 +104,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case SEND_DOCUMENT -> {
                     execute(sendAction(sender.getChatId(), UPLOADDOCUMENT));
                     execute(executorService.sendDocument(sender));
+                }
+                case FORWARD_MESSAGE -> {
+                    execute(sendAction(sender.getChatId(), UPLOADDOCUMENT));
+                    execute(executorService.forward(sender));
                 }
             }
         } catch (TelegramApiException e) {

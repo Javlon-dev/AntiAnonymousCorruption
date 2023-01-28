@@ -39,7 +39,11 @@ abstract public class AbstractService {
     @Autowired
     protected ExecutorService execute;
 
-
+    protected ReplyKeyboardMarkup getKeyboardWithRequestContact(Long chatId, String text, boolean oneTime) {
+        ReplyKeyboardMarkup keyboard = getKeyboardWithRequestContact(chatId, text);
+        keyboard.setOneTimeKeyboard(oneTime);
+        return keyboard;
+    }
 
     protected ReplyKeyboardMarkup getKeyboardWithRequestContact(Long chatId, String text) {
         String lang = service.getLang(chatId);
@@ -108,15 +112,15 @@ abstract public class AbstractService {
         file.setMedia(stream, "google-forms.xlsx");
         return file;
     }
-    private boolean isFormalEmail(String email) {
+    protected boolean isFormalEmail(String email) {
         String mail = "^[_A-Za-z\\d-+]+(.[_A-Za-z\\d-]+)*@[A-Za-z\\d-]+(.[A-Za-z\\d]+)*(.[A-Za-z]{2,})$";
 
         Pattern pattern = Pattern.compile(mail);
         return pattern.matcher(email).matches();
     }
 
-    private boolean isFormalContact(String contact) {
-        String phone = "\\+\\d{12}";
+    protected boolean isFormalContact(String contact) {
+        String phone = "\\+998\\d{9}";
         Pattern pattern = Pattern.compile(phone);
         return pattern.matcher(contact).matches();
     }
