@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static fintech.evolution.variable.constants.user.UserLang.LANG_UZ;
@@ -21,7 +23,7 @@ import static fintech.evolution.variable.constants.user.UserStep.STEP_START;
 @Slf4j
 public class MessageService extends AbstractService {
     @Value("${admin.chatId:0}")
-    private String adminChatId;
+    private Long adminChatId;
 
     public List<GeneralSender> start(Long chatId, Message message) {
         if (message.getText().equals("/start")) service.setStep(chatId, STEP_START);
@@ -31,7 +33,7 @@ public class MessageService extends AbstractService {
             switch (step) {
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private List<GeneralSender> getRegistration(Long chatId) {

@@ -31,9 +31,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
     @Value("${group.chatId:0}")
-    private String groupChatId;
+    private Long groupChatId;
     @Value("${admin.chatId:0}")
-    private String adminChatId;
+    private Long adminChatId;
 
     @Value("${secret.key:noKey}")
     private String secretKey;

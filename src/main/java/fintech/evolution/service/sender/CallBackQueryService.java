@@ -6,6 +6,8 @@ import fintech.evolution.service.user.AbstractService;
 import fintech.evolution.variable.entity.user.UserDebate;
 import fintech.evolution.variable.message.GeneralSender;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +16,7 @@ public class CallBackQueryService extends AbstractService {
 
     public List<GeneralSender> start(Long chatId, CallbackQuery callbackQuery) {
 
-        return null;
+        return Collections.emptyList();
     }
 
     public boolean delete(Long stir) {

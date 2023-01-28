@@ -1,23 +1,16 @@
 package fintech.evolution.service;
 
+import fintech.evolution.service.user.AbstractService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
-import fintech.evolution.service.user.AbstractService;
-import fintech.evolution.variable.entity.user.SecondUserDebate;
-import fintech.evolution.variable.entity.user.UserDebate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.List;
-import java.util.Optional;
 
 import static org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER;
 
@@ -157,7 +150,6 @@ public class DocumentService extends AbstractService {
         sheet.addMergedRegion(new CellRangeAddress(0, 2, 13, 13));
 
 
-        List<UserDebate> all = userDebateRepository.findAll();
 
         XSSFFont userFont = ((XSSFWorkbook) workbook).createFont();
         userFont.setFontName("Arial");
@@ -171,35 +163,7 @@ public class DocumentService extends AbstractService {
         userStyle.setAlignment(CENTER);
         userStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        for (int i = 3; i < all.size() + 3; i++) {
-            Row row = sheet.createRow(i);
-            for (int j = 0; j < 14; j++) {
-                Cell userCell = row.createCell(j);
-                userCell.setCellStyle(userStyle);
-            }
-        }
 
-        for (int i = 3; i < all.size() + 3; i++) {
-            UserDebate debate = all.get(i - 3);
-            Row row = sheet.getRow(i);
-            row.getCell(0).setCellValue(i - 2);
-            String name = debate.getName() == null ? "" : debate.getName();
-            String surname = debate.getSurname() == null ? "" : debate.getSurname();
-            String fatherName = debate.getFatherName() == null ? "" : debate.getFatherName();
-            row.getCell(1).setCellValue(surname + " " + name + " " + fatherName);
-            row.getCell(2).setCellValue(debate.getSubjectName());
-            row.getCell(3).setCellValue(debate.getRegion());
-            row.getCell(4).setCellValue(debate.getDistrict());
-            row.getCell(5).setCellValue(debate.getStir().toString());
-            row.getCell(6).setCellValue(debate.getServiceType());
-            row.getCell(7).setCellValue(debate.getProductName());
-            row.getCell(8).setCellValue(debate.getOperatorName());
-            row.getCell(9).setCellValue(debate.getRegisteredYear().toString());
-            row.getCell(10).setCellValue(debate.getArea());
-            row.getCell(11).setCellValue(debate.getActivityYear().toString());
-            row.getCell(12).setCellValue(debate.getPhoneNumber());
-            row.getCell(13).setCellValue(debate.getEmail());
-        }
 
         try {
             workbook.write(bos);
@@ -340,7 +304,6 @@ public class DocumentService extends AbstractService {
         sheet.addMergedRegion(new CellRangeAddress(0, 2, 13, 13));
 
 
-        List<SecondUserDebate> all = secondUserDebateRepository.findAll();
 
         XSSFFont userFont = ((XSSFWorkbook) workbook).createFont();
         userFont.setFontName("Arial");
@@ -354,99 +317,8 @@ public class DocumentService extends AbstractService {
         userStyle.setAlignment(CENTER);
         userStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        for (int i = 3; i < all.size() + 3; i++) {
-            Row row = sheet.createRow(i);
-            for (int j = 0; j < 14; j++) {
-                Cell userCell = row.createCell(j);
-                userCell.setCellStyle(userStyle);
-            }
-        }
-
-        for (int i = 3; i < all.size() + 3; i++) {
-            SecondUserDebate debate = all.get(i - 3);
-            Row row = sheet.getRow(i);
-            row.getCell(0).setCellValue(i - 2);
-            String name = debate.getName() == null ? "" : debate.getName();
-            String surname = debate.getSurname() == null ? "" : debate.getSurname();
-            String fatherName = debate.getFatherName() == null ? "" : debate.getFatherName();
-            row.getCell(1).setCellValue(surname + " " + name + " " + fatherName);
-            row.getCell(2).setCellValue(debate.getSubjectName());
-            row.getCell(3).setCellValue(debate.getRegion());
-            row.getCell(4).setCellValue(debate.getDistrict());
-            row.getCell(5).setCellValue(debate.getStir().toString());
-            row.getCell(6).setCellValue(debate.getServiceType());
-            row.getCell(7).setCellValue(debate.getProductName());
-            row.getCell(8).setCellValue(debate.getOperatorName());
-            row.getCell(9).setCellValue(debate.getRegisteredYear().toString());
-            row.getCell(10).setCellValue(debate.getArea());
-            row.getCell(11).setCellValue(debate.getActivityYear().toString());
-            row.getCell(12).setCellValue(debate.getPhoneNumber());
-            row.getCell(13).setCellValue(debate.getEmail());
-        }
-
-        try {
-            workbook.write(bos);
-        } catch (IOException e) {
-            log.warn("----> WORK_BOOK ----> " + e.getMessage());
-        }
-        return bos.toByteArray();
+        return null;
     }
 
-    public void getUrl(String url) {
-        secondUserDebateRepository.deleteAll();
-        try {
-            InputStream is = new URL(url).openStream();
-            XSSFWorkbook workbook = new XSSFWorkbook(is);
-            XSSFSheet sheet = workbook.getSheetAt(0);
 
-            var last = sheet.getLastRowNum();
-            for (int i = 1; i <= last; i++) {
-                try {
-                    var row = sheet.getRow(i);
-                    String name = String.valueOf(row.getCell(1));
-                    String surname = String.valueOf(row.getCell(2));
-                    String fatherName = row.getCell(3) == null ? "" : String.valueOf(row.getCell(3));
-                    String phone = String.valueOf(row.getCell(4));
-                    String email = String.valueOf(row.getCell(5));
-                    String subjectName = String.valueOf(row.getCell(6));
-                    String region = String.valueOf(row.getCell(7));
-                    String dist = String.valueOf(row.getCell(8));
-                    long stir = (long) Double.parseDouble(String.valueOf(row.getCell(9)));
-                    String type = String.valueOf(row.getCell(10));
-                    String productName = String.valueOf(row.getCell(11));
-                    int activityYear = (int) Double.parseDouble(String.valueOf(row.getCell(12)));
-                    String operatorName = String.valueOf(row.getCell(13));
-                    int registrationYear = (int) Double.parseDouble((String.valueOf(row.getCell(14))));
-                    String address = String.valueOf(row.getCell(15));
-
-                    SecondUserDebate userDebate = new SecondUserDebate();
-                    userDebate.setName(name);
-                    userDebate.setSurname(surname);
-                    userDebate.setFatherName(fatherName);
-                    userDebate.setPhoneNumber(phone);
-                    userDebate.setEmail(email);
-                    userDebate.setSubjectName(subjectName);
-                    userDebate.setRegion(region);
-                    userDebate.setDistrict(dist);
-                    userDebate.setStir(stir);
-                    userDebate.setServiceType(type);
-                    userDebate.setProductName(productName);
-                    userDebate.setActivityYear(activityYear);
-                    userDebate.setOperatorName(operatorName);
-                    userDebate.setRegisteredYear(registrationYear);
-                    userDebate.setArea(address);
-                    Optional<SecondUserDebate> debate = secondUserDebateRepository.findByStir(userDebate.getStir());
-                    debate.ifPresent(secondUserDebate -> userDebate.setId(secondUserDebate.getId()));
-                    secondUserDebateRepository.save(userDebate);
-                } catch (Exception e) {
-                    log.warn(e.getMessage());
-                }
-
-            }
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-    }
 }

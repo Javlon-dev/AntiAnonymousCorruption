@@ -1,20 +1,20 @@
 package fintech.evolution.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.*;
+import fintech.evolution.service.sender.AdminService;
 import fintech.evolution.service.sender.CallBackQueryService;
 import fintech.evolution.service.sender.MessageService;
 import fintech.evolution.service.user.UserService;
 import fintech.evolution.variable.enums.UpdateEnum;
 import fintech.evolution.variable.message.GeneralSender;
-import fintech.evolution.variable.message.SenderLocation;
-import fintech.evolution.variable.message.SenderMessage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static fintech.evolution.variable.constants.user.UserStep.*;
 import static fintech.evolution.variable.enums.UpdateEnum.*;
 
 @Service
@@ -25,6 +25,9 @@ public class TelegramService {
     private final CallBackQueryService callBackQueryService;
     private final UserService userService;
     private final DocumentService documentService;
+    private final AdminService adminService;
+    @Value("${admin.chatId:0}")
+    private Long adminChatId;
 
 
     public List<GeneralSender> onUpdate(Update update) {
@@ -33,9 +36,13 @@ public class TelegramService {
 
         switch (updateEnum) {
             case MESSAGE_TEXT -> {
+                if (update.getMessage().getChatId().equals(adminChatId))
+                    return adminService.start(update.getMessage());
                 return messageText(update.getMessage());
             }
             case CALL_BACK_QUERY -> {
+                if (update.getCallbackQuery().getMessage().getChatId().equals(adminChatId))
+                    return adminService.callBack(update.getCallbackQuery());
                 return callBack(update.getCallbackQuery());
             }
 
@@ -44,11 +51,11 @@ public class TelegramService {
                 return messageContact(update.getMessage());
             }
             case DEFAULT_UPDATE -> {
-                return null;
+                return new ArrayList<>();
             }
         }
 
-        return null;
+        return new ArrayList<>();
     }
 
 
@@ -77,8 +84,6 @@ public class TelegramService {
     }
 
 
-
-
     private UpdateEnum getUpdate(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
@@ -105,6 +110,6 @@ public class TelegramService {
 
 
     public void onDocument(String s) {
-        documentService.getUrl(s);
+
     }
 }
