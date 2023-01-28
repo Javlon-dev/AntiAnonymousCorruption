@@ -12,6 +12,8 @@ import fintech.evolution.variable.message.GeneralSender;
 import fintech.evolution.variable.message.SenderLocation;
 import fintech.evolution.variable.message.SenderMessage;
 
+import java.util.List;
+
 import static fintech.evolution.variable.constants.user.UserStep.*;
 import static fintech.evolution.variable.enums.UpdateEnum.*;
 
@@ -25,7 +27,7 @@ public class TelegramService {
     private final DocumentService documentService;
 
 
-    public GeneralSender onUpdate(Update update) {
+    public List<GeneralSender> onUpdate(Update update) {
         UpdateEnum updateEnum = getUpdate(update);
 
 
@@ -36,9 +38,7 @@ public class TelegramService {
             case CALL_BACK_QUERY -> {
                 return callBack(update.getCallbackQuery());
             }
-            case LOCATION_MESSAGE -> {
-                return messageLocation(update.getMessage());
-            }
+
             case CONTACT_MESSAGE -> {
 
                 return messageContact(update.getMessage());
@@ -52,7 +52,7 @@ public class TelegramService {
     }
 
 
-    private GeneralSender messageText(Message message) {
+    private List<GeneralSender> messageText(Message message) {
         Long chatId = message.getChatId();
         Integer messageId = message.getMessageId();
         userService.setMessageId(chatId, messageId);
@@ -60,7 +60,7 @@ public class TelegramService {
         return messageService.start(chatId, message);
     }
 
-    private GeneralSender callBack(CallbackQuery callbackQuery) {
+    private List<GeneralSender> callBack(CallbackQuery callbackQuery) {
         Long chatId = callbackQuery.getMessage().getChatId();
         Integer messageId = callbackQuery.getMessage().getMessageId();
         userService.setMessageId(chatId, messageId);
@@ -68,28 +68,15 @@ public class TelegramService {
         return callBackQueryService.start(chatId, callbackQuery);
     }
 
-    private GeneralSender messageContact(Message message) {
+    private List<GeneralSender> messageContact(Message message) {
         Long chatId = message.getChatId();
         Contact contact = message.getContact();
         String step = userService.getStep(chatId);
-        if (step.equals(STEP_REVIEW)) {
-            return messageService.messageContact(chatId, contact);
-        } else if (step.equals(STEP_SET_PHONE)) {
-            return messageService.getContact(chatId, contact.getPhoneNumber());
-        }
+
         return null;
     }
 
-    private GeneralSender messageLocation(Message message) {
-        Location location = message.getLocation();
-        return SenderLocation
-                .builder()
-                .chatId(message.getChatId())
-                .latitude(location.getLatitude())
-                .longitude(location.getLongitude())
-                .replyMessageId(message.getMessageId())
-                .build();
-    }
+
 
 
     private UpdateEnum getUpdate(Update update) {
@@ -116,23 +103,6 @@ public class TelegramService {
         return callBackQueryService.getInputBot();
     }
 
-    public GeneralSender delete(String s, Long chatId) {
-        Long stir = Long.valueOf(s);
-        boolean delete = callBackQueryService.delete(stir);
-        if (delete) {
-            return SenderMessage
-                    .builder()
-                    .chatId(chatId)
-                    .text(s + " стир рақамли фойдаланувчи рўйхатдан ўчирилди")
-                    .build();
-        }
-        return SenderMessage
-                .builder()
-                .chatId(chatId)
-                .text(s + " стир рақамли фойдаланувчи топилмади")
-                .build();
-
-    }
 
     public void onDocument(String s) {
         documentService.getUrl(s);
