@@ -37,7 +37,7 @@ public class UserService implements UserCache {
 
     @Override
     public String getStep(Long chatId) {
-        mapStep.putIfAbsent(chatId, STEP_START);
+        mapStep.putIfAbsent(chatId, STEP_AUTO);
         return mapStep.get(chatId);
     }
 

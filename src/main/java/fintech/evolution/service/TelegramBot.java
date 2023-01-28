@@ -72,20 +72,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
 
-        if (update.hasMessage() || update.getMessage().getText().equals(TEXT_START)) {
-            String uz = "<b>Ассалому алайкум!</b>";
-            String ru = "<b>Здравствуйте!</b>";
-            String lang = userService.getLang(update.getMessage().getChatId());
-
-            executeMessage(SenderMessage
-                    .builder()
-                    .chatId(update.getMessage().getChatId())
-                    .text(lang.equals(LANG_UZ) ? uz : ru)
-                    .parseMode(ParseMode.HTML)
-                    .build());
-
-        }
-
         List<GeneralSender> sender = service.onUpdate(update);
 
         if (!sender.isEmpty()) {

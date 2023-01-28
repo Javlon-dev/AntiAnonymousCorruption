@@ -19,8 +19,7 @@ import java.util.regex.Pattern;
 
 import static fintech.evolution.utils.Utils.getTextByLang;
 import static fintech.evolution.variable.constants.user.UserLang.LANG_UZ;
-import static fintech.evolution.variable.constants.user.UserMenu.MENU_CANCEL_RU;
-import static fintech.evolution.variable.constants.user.UserMenu.MENU_CANCEL_UZ;
+import static fintech.evolution.variable.constants.user.UserMenu.*;
 
 @Slf4j
 abstract public class AbstractService {
@@ -66,23 +65,32 @@ abstract public class AbstractService {
         return reply.getKeyboard(r2);
     }
 
+    protected ReplyKeyboardMarkup getKeyboardWithBack(Long chatId, String text) {
+        String lang = service.getLang(chatId);
+        KeyboardButton b2 = reply.getButton(getTextByLang(lang, MENU_BACK_UZ, MENU_BACK_RU));
+        KeyboardRow r2 = reply.getRows(b2);
+        if (text != null) {
+            KeyboardButton b1 = reply.getButton(text);
+            KeyboardRow r1 = reply.getRows(b1);
+            return reply.getKeyboard(r1, r2);
+        }
+        return reply.getKeyboard(r2);
+    }
 
-    protected boolean isValidMessage(String text) {
+    protected boolean isFormative(Class<?> clas, String text) {
 
-        Field[] declaredFields = UserMenu.class.getDeclaredFields();
+        Field[] declaredFields = clas.getDeclaredFields();
         for (Field declaredField : declaredFields) {
             try {
                 if (text.equals(declaredField.get(declaredField.getName()).toString())) {
-                    return false;
+                    return true;
                 }
             } catch (IllegalAccessException e) {
                 log.warn("<< UserMenu : " + e.getMessage());
             }
         }
-        return true;
+        return false;
     }
-
-
 
     public InputFile getInputBot() {
         byte[] bytes = documentService.getExcelBot();
