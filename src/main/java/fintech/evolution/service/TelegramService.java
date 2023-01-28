@@ -102,6 +102,7 @@ public class TelegramService {
             if (message.hasText()) return MESSAGE_TEXT;
             if (message.hasVoice()) return VOICE_MESSAGE;
             if (message.hasPhoto()) return PHOTO_MESSAGE;
+            if (message.hasVideo()) return VIDEO_MESSAGE;
             if (message.hasDocument()) return DOCUMENT_MESSAGE;
             if (message.hasContact()) return CONTACT_MESSAGE;
             if (message.hasAnimation()) return ANIMATION_MESSAGE;
