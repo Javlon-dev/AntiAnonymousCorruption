@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static fintech.evolution.utils.Utils.getTextByLang;
+import static fintech.evolution.utils.Utils.isFormalContact;
 import static fintech.evolution.variable.constants.user.UserLang.*;
 import static fintech.evolution.variable.constants.user.UserMenu.*;
 import static fintech.evolution.variable.constants.user.UserStep.*;
@@ -80,7 +81,7 @@ public class MessageService extends AbstractService {
 
     public List<GeneralSender> stepCooperationPhone(Long chatId, String msg) {
         String lang = service.getLang(chatId);
-        if (!isFormalContact(msg)) {
+        if ((msg.length() == 9 && !isFormalContact(msg = "+998" + msg) || !isFormalContact(msg))) {
             return Collections.singletonList(SenderMessage
                     .builder()
                     .chatId(chatId)
@@ -88,7 +89,6 @@ public class MessageService extends AbstractService {
                     .reply(getKeyboardWithRequestContact(chatId, getTextByLang(lang, TEXT_SHARE_CONTACT_UZ, TEXT_SHARE_CONTACT_RU)))
                     .build());
         }
-
         UserCooperation userCooperation = service.getUserCooperation(chatId);
         userCooperation.setPhoneNumber(msg);
         service.setUserCooperation(chatId, userCooperation);
@@ -349,16 +349,17 @@ public class MessageService extends AbstractService {
                 .builder()
                 .chatId(channelChatId)
                 .text(getCooperationUser(userCooperation))
+                .disableWebPagePreview(true)
                 .build());
-        log.info("<< stepCooperation " + userCooperation);
+
         return list;
     }
 
     private String getCooperationUser(UserCooperation userCooperation) {
         return """
-                F.I.O: %s
-                Phone: %s
-                Username: %s
+                *F.I.O:* `%s`
+                *Phone:* `%s`
+                *Username:* %s
                 """.formatted(userCooperation.getFullName(),
                 userCooperation.getPhoneNumber(),
                 userCooperation.getUsername() != null ? "https://t.me/" + userCooperation.getUsername() : "https://t.me/" + userCooperation.getPhoneNumber());

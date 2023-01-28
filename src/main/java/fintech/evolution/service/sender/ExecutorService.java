@@ -23,6 +23,7 @@ public class ExecutorService {
                 .chatId(sender.getChatId())
                 .text(sender.getText())
                 .parseMode(sender.getParseMode() == null ? ParseMode.MARKDOWN : sender.getParseMode())
+                .disableWebPagePreview(sender.getDisableWebPagePreview())
                 .build();
         if (sender.getReply() != null) send.setReplyMarkup(sender.getReply());
         if (isExistReplyMessage(sender)) send.setReplyToMessageId(sender.getReplyMessageId());

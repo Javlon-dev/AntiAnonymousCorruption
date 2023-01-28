@@ -14,6 +14,7 @@ public class SenderMessage implements GeneralSender {
     private Long chatId;
     private String text;
     private String parseMode;
+    private boolean disableWebPagePreview;
     private ReplyKeyboard reply;
     private Integer replyMessageId;
 
