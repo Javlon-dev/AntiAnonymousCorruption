@@ -1,7 +1,7 @@
 package fintech.evolution.service.user;
 
 import org.springframework.stereotype.Component;
-import fintech.evolution.variable.entity.UserReview;
+import fintech.evolution.variable.entity.UserCooperation;
 import fintech.evolution.variable.entity.user.UserDebate;
 
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class UserService implements UserCache {
     private final Map<Long, String> mapLang = new HashMap<>();
     private final Map<Long, Integer> mapMessageId = new HashMap<>();
     private final Map<Long, String> mapRegion = new HashMap<>();
-    private final Map<Long, UserReview> mapUserReview = new HashMap<>();
+    private final Map<Long, UserCooperation> mapUserCooperation = new HashMap<>();
     private final Map<Long, UserDebate> mapUserDebate = new HashMap<>();
 
 
@@ -53,14 +53,14 @@ public class UserService implements UserCache {
     }
 
     @Override
-    public void setUserReview(Long chatId, UserReview userReview) {
-        mapUserReview.put(chatId, userReview);
+    public void setUserReview(Long chatId, UserCooperation userCooperation) {
+        mapUserCooperation.put(chatId, userCooperation);
     }
 
     @Override
-    public UserReview getUserReview(Long chatId) {
-        mapUserReview.putIfAbsent(chatId, new UserReview());
-        return mapUserReview.get(chatId);
+    public UserCooperation getUserReview(Long chatId) {
+        mapUserCooperation.putIfAbsent(chatId, new UserCooperation());
+        return mapUserCooperation.get(chatId);
     }
 
     @Override

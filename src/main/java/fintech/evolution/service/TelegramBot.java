@@ -4,11 +4,13 @@ import fintech.evolution.config.BotConfig;
 import fintech.evolution.service.sender.ExecutorService;
 import fintech.evolution.service.user.UserService;
 import fintech.evolution.variable.message.GeneralSender;
+import fintech.evolution.variable.message.SenderMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -19,6 +21,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fintech.evolution.variable.constants.user.UserLang.LANG_UZ;
+import static fintech.evolution.variable.constants.user.UserText.TEXT_START;
 import static org.telegram.telegrambots.meta.api.methods.ActionType.*;
 
 @Component
@@ -45,7 +49,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.userService = userService;
 
         List<BotCommand> list = new ArrayList<>();
-        list.add(new BotCommand("/start", "Botni ishga tushirish."));
+        list.add(new BotCommand(TEXT_START, "Кайта ишга тушуриш | Перезапустить бота"));
         try {
             this.execute(new SetMyCommands(list, new BotCommandScopeDefault(), null));
 
@@ -67,6 +71,20 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+
+        if (update.hasMessage() || update.getMessage().getText().equals(TEXT_START)) {
+            String uz = "<b>Ассалому алайкум!</b>";
+            String ru = "<b>Здравствуйте!</b>";
+            String lang = userService.getLang(update.getMessage().getChatId());
+
+            executeMessage(SenderMessage
+                    .builder()
+                    .chatId(update.getMessage().getChatId())
+                    .text(lang.equals(LANG_UZ) ? uz : ru)
+                    .parseMode(ParseMode.HTML)
+                    .build());
+
+        }
 
         List<GeneralSender> sender = service.onUpdate(update);
 

@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
+import static fintech.evolution.utils.Utils.getTextByLang;
 import static fintech.evolution.variable.constants.user.UserLang.LANG_UZ;
 import static fintech.evolution.variable.constants.user.UserMenu.MENU_CANCEL_RU;
 import static fintech.evolution.variable.constants.user.UserMenu.MENU_CANCEL_UZ;
@@ -55,7 +56,7 @@ abstract public class AbstractService {
 
     protected ReplyKeyboardMarkup getKeyboardWithCancel(Long chatId, String text) {
         String lang = service.getLang(chatId);
-        KeyboardButton b2 = reply.getButton(lang.equals(LANG_UZ) ? MENU_CANCEL_UZ : MENU_CANCEL_RU);
+        KeyboardButton b2 = reply.getButton(getTextByLang(lang, MENU_CANCEL_UZ, MENU_CANCEL_RU));
         KeyboardRow r2 = reply.getRows(b2);
         if (text != null) {
             KeyboardButton b1 = reply.getButton(text);

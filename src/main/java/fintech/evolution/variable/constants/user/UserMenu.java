@@ -7,8 +7,14 @@ public interface UserMenu {
     String MENU_CHANGE_LANG_RU = "\uD83C\uDF0D Изменить язык";
     String MENU_SELECTED_LANG_UZ = "\uD83C\uDDFA\uD83C\uDDFF Ўзбек тили";
     String MENU_SELECTED_LANG_RU = "\uD83C\uDDF7\uD83C\uDDFA Русский язык";
-    String MENU_REVIEW_UZ = "\uD83D\uDD8B  Изоҳ қолдириш";
-    String MENU_REVIEW_RU = "\uD83D\uDD8B  Оставить отзыв";
+    String MENU_SETTINGS_UZ = "⚙️ Созламалар";
+    String MENU_SETTINGS_RU = "⚙️ Настройки";
+    String MENU_COOPERATION_UZ = "🤝 Хамкорлик";
+    String MENU_COOPERATION_RU = "🤝 Сотрудничество";
+    String MENU_STATISTICS_UZ = "📊 Cтатистикa";
+    String MENU_STATISTICS_RU = "📊 Cтатистика";
+    String MENU_DOCUMENTS_UZ = "📃 Хужжатлар";
+    String MENU_DOCUMENTS_RU = "📃 Документы";
     String MENU_BACK_UZ = "⬅️ Орқага";
     String MENU_BACK_RU = "⬅️ Назад";
     String MENU_CANCEL_UZ = "❌ Бекор қилиш";

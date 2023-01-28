@@ -1,6 +1,6 @@
 package fintech.evolution.service.user;
 
-import fintech.evolution.variable.entity.UserReview;
+import fintech.evolution.variable.entity.UserCooperation;
 import fintech.evolution.variable.entity.user.UserDebate;
 
 public interface UserCache {
@@ -16,9 +16,9 @@ public interface UserCache {
 
     Integer getMessageId(Long chatId);
 
-    void setUserReview(Long chatId, UserReview userReview);
+    void setUserReview(Long chatId, UserCooperation userCooperation);
 
-    UserReview getUserReview(Long chatId);
+    UserCooperation getUserReview(Long chatId);
 
     void setUserDebate(Long chatId, UserDebate userDebate);
 

@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static fintech.evolution.variable.constants.user.UserStep.*;
 import static fintech.evolution.variable.enums.UpdateEnum.*;
 
 @Service
@@ -50,12 +52,28 @@ public class TelegramService {
 
                 return messageContact(update.getMessage());
             }
+            case PHOTO_MESSAGE, VIDEO_MESSAGE -> {
+                return messagePhotoOrVideo(update.getMessage());
+            }
             case DEFAULT_UPDATE -> {
                 return new ArrayList<>();
             }
         }
 
         return new ArrayList<>();
+    }
+
+    public List<GeneralSender> messagePhotoOrVideo(Message message) {
+        Long chatId = message.getChatId();
+        Integer messageId = message.getMessageId();
+        String step = userService.getStep(chatId);
+
+        switch (step) {
+            case STEP_COOPERATION_SEND_PHOTO_OR_VIDEO -> {
+                messageService.stepCooperation(1l);
+            }
+        }
+        return Collections.emptyList();
     }
 
 
