@@ -41,6 +41,9 @@ public class MessageService extends AbstractService {
     @Value("#{'${bot.docs:}'.split(',')}")
     private List<Integer> botDocs;
 
+    @Value("#{'${bot.statistics:}'.split(',')}")
+    private List<Integer> botStatistics;
+
     @Value("${dev.chat.id:0}")
     private Long devChatId;
 
@@ -237,7 +240,14 @@ public class MessageService extends AbstractService {
                 .text(text)
                 .build();
 
-        return Collections.singletonList(senderMessage);
+        ForwarderMessage forwarderMessage = ForwarderMessage
+                .builder()
+                .fromChatId(devChatId)
+                .chatId(chatId)
+                .messagesId(botStatistics)
+                .build();
+
+        return List.of(senderMessage, forwarderMessage);
     }
 
     public List<GeneralSender> backMenu(Long chatId) {
