@@ -211,6 +211,8 @@ public class MessageService extends AbstractService {
                         .disableWebPagePreview(true)
                         .build());
 
+                userCooperation.clearMessagesId();
+                
                 return list;
             }
         }

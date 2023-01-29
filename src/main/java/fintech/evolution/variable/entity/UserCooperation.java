@@ -37,4 +37,8 @@ public class UserCooperation extends BaseEntity {
     public void setMessagesId(Integer messageId) {
         this.messagesId.add(messageId);
     }
+
+    public void clearMessagesId() {
+        this.messagesId = new ArrayList<>();
+    }
 }
