@@ -5,6 +5,7 @@ import fintech.evolution.variable.constants.user.UserMenu;
 import fintech.evolution.variable.entity.UserCooperation;
 import fintech.evolution.variable.message.ForwarderMessage;
 import fintech.evolution.variable.message.GeneralSender;
+import fintech.evolution.variable.message.SenderDocument;
 import fintech.evolution.variable.message.SenderMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,12 @@ public class MessageService extends AbstractService {
 
     @Value("${channel.chat.id:0}")
     private Long channelChatId;
+
+    @Value("#{'${bot.docs:}'.split(',')}")
+    private List<Integer> botDocs;
+
+    @Value("${dev.chat.id:0}")
+    private Long devChatId;
 
     public List<GeneralSender> start(Long chatId, Message message) {
         String step = service.getStep(chatId);
@@ -150,9 +157,23 @@ public class MessageService extends AbstractService {
             case MENU_CANCEL_UZ, MENU_CANCEL_RU -> {
                 return menuCancel(chatId);
             }
+            case MENU_DOCUMENTS_UZ, MENU_DOCUMENTS_RU -> {
+                return documentMenu(chatId);
+            }
         }
 
         return Collections.emptyList();
+    }
+
+    public List<GeneralSender> documentMenu(Long chatId) {
+        String lang = service.getLang(chatId);
+
+        return Collections.singletonList(ForwarderMessage
+                .builder()
+                .chatId(chatId)
+                .fromChatId(devChatId)
+                .messagesId(botDocs)
+                .build());
     }
 
     public List<GeneralSender> confirmMenu(Long chatId) {
@@ -383,9 +404,13 @@ public class MessageService extends AbstractService {
 
     private String getCooperationUser(UserCooperation userCooperation) {
         return """
+                
                 *F.I.O:* `%s`
+                
                 *Phone:* `%s`
+                
                 *Username:* %s
+                
                 """.formatted(userCooperation.getFullName(),
                 userCooperation.getPhoneNumber(),
                 userCooperation.getUsername() != null ? "https://t.me/" + userCooperation.getUsername() : "https://t.me/" + userCooperation.getPhoneNumber());
